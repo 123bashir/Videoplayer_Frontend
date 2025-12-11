@@ -12,6 +12,19 @@ function App() {
 
   useEffect(() => {
     loadLessons();
+
+    // Block right-click context menu completely
+    const handleContextMenu = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    };
+
+    document.addEventListener('contextmenu', handleContextMenu, true);
+
+    return () => {
+      document.removeEventListener('contextmenu', handleContextMenu, true);
+    };
   }, []);
 
   const loadLessons = async () => {

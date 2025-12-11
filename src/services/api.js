@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'https://videoplayer-backend-fieg.onrender.com/api';
+const API_BASE_URL = 'http://localhost:5000/api';
 
 export const api = {
     // Get all lessons
@@ -16,9 +16,11 @@ export const api = {
     },
 
     // Decrypt video ID
-    decryptVideoId: async (encryptedVideoId) => {
+    decryptVideoId: async (encryptedData) => {
         const response = await axios.post(`${API_BASE_URL}/decrypt`, {
-            encryptedVideoId
+            encryptedVideoId: encryptedData.encryptedVideoId,
+            timestamp: encryptedData.timestamp,
+            checksum: encryptedData.checksum
         });
         return response.data;
     }

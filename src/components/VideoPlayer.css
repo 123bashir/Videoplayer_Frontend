@@ -10,12 +10,17 @@
   justify-content: center;
   z-index: 1000;
   animation: fadeIn 0.3s ease-in-out;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -25,13 +30,14 @@
   position: relative;
   width: 90%;
   max-width: 1200px;
-  max-height: 85vh; /* Ensure it fits on screen with controls visible */
+  max-height: 85vh;
+  /* Ensure it fits on screen with controls visible */
   aspect-ratio: 16 / 9;
   background: #000;
-  border-radius: 12px;
-  overflow: hidden;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   animation: slideUp 0.4s ease-out;
+  overflow: visible;
+  /* Allow close button to be seen outside */
 }
 
 @keyframes slideUp {
@@ -39,53 +45,178 @@
     transform: translateY(50px);
     opacity: 0;
   }
+
   to {
     transform: translateY(0);
     opacity: 1;
   }
 }
 
+/* Premium Animated Close Button */
 .close-button {
   position: absolute;
-  top: -45px;
-  right: 0;
-  background: rgba(255, 255, 255, 0.1);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  color: white;
-  width: 40px;
-  height: 40px;
+  top: 20px;
+  right: 20px;
+  width: 45px;
+  height: 45px;
   border-radius: 50%;
-  font-size: 24px;
+  border: none;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: rgba(255, 255, 255, 0.9);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-  z-index: 10;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1000;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  animation: fadeSlideIn 0.8s ease-out forwards;
+  opacity: 0;
 }
 
+/* Inner wrapper for independent icon rotation */
+.close-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.4s ease;
+}
+
+.close-button svg {
+  width: 24px;
+  height: 24px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+/* Pulsing Ring Effect */
+.close-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  opacity: 0;
+  transform: scale(1);
+  transition: all 0.4s ease;
+}
+
+/* Hover Effects */
 .close-button:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(220, 38, 38, 0.9);
+  /* Vibrant red on hover */
+  transform: scale(1.1);
+  box-shadow:
+    0 8px 25px rgba(220, 38, 38, 0.5),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.3);
+}
+
+.close-button:hover .close-icon-wrapper {
   transform: rotate(90deg);
+  /* Smooth rotation */
+}
+
+.close-button:hover .close-ring {
+  opacity: 1;
+  animation: ripple 1.5s infinite cubic-bezier(0, 0, 0.2, 1);
+}
+
+/* Active State (Click) */
+.close-button:active {
+  transform: scale(0.95);
+  background: rgba(185, 28, 28, 1);
+}
+
+/* Animations */
+@keyframes fadeSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+    border-color: rgba(255, 255, 255, 0.8);
+  }
+
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+    border-color: rgba(255, 255, 255, 0);
+  }
 }
 
 .video-wrapper {
   width: 100%;
   height: 100%;
   position: relative;
+  user-select: none;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
 }
 
 .youtube-player {
   width: 100%;
   height: 100%;
+  pointer-events: auto;
 }
 
 .youtube-player iframe {
   width: 100%;
   height: 100%;
   border: none;
+  pointer-events: auto;
+}
+
+/* Invisible shield to block right-click on video */
+.video-shield {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 999;
+  background: transparent;
+  pointer-events: none;
+  /* Allow clicks to pass through by default */
+}
+
+/* Enable pointer events only for right-click blocking */
+.video-shield:active {
+  pointer-events: auto;
+}
+
+.video-wrapper:hover .video-shield {
+  pointer-events: auto;
+  /* Activate shield on hover */
+}
+
+/* Transparent overlay to block right-click on video */
+.video-protection-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  pointer-events: all;
+  /* Capture all pointer events */
+  cursor: default;
+  background: transparent;
 }
 
 .loading-spinner {
@@ -154,9 +285,10 @@
 @media (max-width: 768px) {
   .video-player-container {
     width: 95%;
-    max-height: 80vh; /* More space for controls on mobile */
+    max-height: 80vh;
+    /* More space for controls on mobile */
   }
-  
+
   .close-button {
     top: -40px;
     width: 35px;
@@ -168,9 +300,10 @@
 @media (max-width: 480px) {
   .video-player-container {
     width: 98%;
-    max-height: 75vh; /* Even more conservative on small phones */
+    max-height: 75vh;
+    /* Even more conservative on small phones */
   }
-  
+
   .close-button {
     top: -35px;
     width: 32px;

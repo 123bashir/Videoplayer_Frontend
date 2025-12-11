@@ -23,8 +23,8 @@ const VideoPlayer = ({ lessonId, onClose }) => {
             // Get encrypted video ID
             const encryptedData = await api.getEncryptedVideoId(lessonId);
 
-            // Decrypt video ID
-            const decryptedData = await api.decryptVideoId(encryptedData.encryptedVideoId);
+            // Decrypt video ID (passes timestamp and checksum for validation)
+            const decryptedData = await api.decryptVideoId(encryptedData);
 
             // Set video ID (this happens in memory, harder to extract)
             setVideoId(decryptedData.videoId);
@@ -54,7 +54,12 @@ const VideoPlayer = ({ lessonId, onClose }) => {
 
         const iframe = event.target.getIframe();
         if (iframe) {
+            // Disable right-click context menu on the video player
             iframe.style.pointerEvents = 'auto';
+            iframe.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                return false;
+            });
         }
     };
 
@@ -108,10 +113,22 @@ const VideoPlayer = ({ lessonId, onClose }) => {
     return (
         <div className="video-player-overlay" onClick={onClose}>
             <div className="video-player-container" onClick={(e) => e.stopPropagation()}>
-                <button className="close-button" onClick={onClose}>
-                    ✕
+                <button className="close-button" onClick={onClose} aria-label="Close">
+                    <span className="close-icon-wrapper">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                    </span>
+                    <span className="close-ring"></span>
                 </button>
-                <div className="video-wrapper">
+                <div
+                    className="video-wrapper"
+                    onContextMenu={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return false;
+                    }}
+                >
                     {videoId && (
                         <YouTube
                             videoId={videoId}
